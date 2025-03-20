@@ -16,44 +16,87 @@ El proceso ETL sigue la siguiente arquitectura:
 
 ## Requisitos
 Para ejecutar este ETL, se requiere:
-- **Google Colab** con acceso a Google Drive.
-- Instalación de dependencias:
-  ```python
-  !pip install pyspark
-  ```
-- Archivo de datos: **Films_2.xlsx** en la carpeta `etl_project` dentro de Google Drive.
 
-## Estructura del Proyecto
+- **Google Colab** (Para ejecutar el código en la nube)
+- **Google Drive** (Para almacenar el archivo fuente y los resultados)
+
+
+## **Cómo Ejecutar el ETL en Google Colab**
+
+1. **Sube la carpeta `etl_project` a Google Drive** en la ubicación: `/content/drive/MyDrive `
+2. **Abre Google Colab** y monta Google Drive con este código:
+
+
+```python
+from google.colab import drive
+drive.mount('/content/drive')
+
 ```
-/etl_project
-│── main.py              # Script principal que ejecuta el ETL
-│── extracción.py        # Módulo de extracción de datos
-│── transformación.py    # Módulo de transformación de datos
-│── carga.py             # Módulo de carga de datos
-│── utils.py             # Funciones auxiliares y configuración
-│── output/              # Carpeta donde se almacenan los archivos Parquet
-│── Films_2.xlsx         # Archivo fuente de datos
+3. **Ejecuta el siguiente comando:**
+```python
+!python3 "/content/drive/My Drive/etl_project/main.py"
 ```
 
-## Ejecución
-Para ejecutar el proceso ETL en Google Colab:
-1. **Montar Google Drive**:
-   ```python
-   from google.colab import drive
-   drive.mount('/content/drive')
-   ```
-2. **Ejecutar el script principal**:
-   ```python
-   !python /content/drive/My Drive/etl_project/main.py
-   ```
 
-## Observabilidad
-Se han integrado módulos de observabilidad que generan logs de cada paso del proceso. Los mensajes de estado indican:
-- Inicio y fin del proceso ETL.
-- Tablas extraídas correctamente.
-- Transformaciones aplicadas con éxito.
-- Errores y advertencias detectadas.
 
 ## Resultados
 Los datos transformados se guardan en formato **Parquet** en la carpeta `output/` dentro de `etl_project` en Google Drive.
+
+# Justificación del Diseño del ETL
+
+## Introducción
+
+El diseño del ETL se basa en la necesidad de procesar datos de películas de manera eficiente, asegurando calidad, limpieza y transformaciones óptimas.
+
+---
+## **Elección de Tecnologías**
+
+| Tecnología       | Justificación |
+|-----------------|--------------|
+| **Python 3** | Lenguaje versátil y compatible con bibliotecas de datos. |
+| **Apache Spark (PySpark)** | Procesamiento eficiente de datos grandes en paralelo. |
+| **Google Drive** | Almacenamiento accesible y fácil integración con Colab. |
+| **Parquet** | Formato eficiente para almacenamiento y consultas rápidas. |
+
+---
+
+## **Diseño del ETL**
+
+El diseño sigue un enfoque **modular y escalable**, permitiendo reutilización y mantenimiento sencillo.
+
+###  **Módulos Principales**
+1. **Extracción (`extraction.py`)**  
+   - Lee datos desde un archivo Excel (`Films_2.xlsx`).
+   - Ignora pestañas vacías o irrelevantes.
+
+2. **Transformación (`transformation.py`)**  
+   - **Elimina duplicados** en cada tabla clave.  
+   - **Limpia encabezados** y valores numéricos con caracteres no deseados.  
+   - **Corrige datos en la columna `rental_id`** generando valores consecutivos.  
+   - **Elimina caracteres no deseados en `email`**.
+
+3. **Carga (`load.py`)**  
+   - Almacena los datos transformados en **Google Drive** en formato **Parquet**.
+
+4. **Observabilidad (`observability.py`)**  
+   - Registra eventos clave y errores.
+   - Proporciona métricas de ejecución.
+
+---
+
+## **Ventajas del Diseño**
+
+ **Escalabilidad:** Apache Spark permite manejar grandes volúmenes de datos.  
+ **Flexibilidad:** Se pueden agregar nuevas transformaciones sin afectar la arquitectura.  
+ **Eficiencia:** Uso de Parquet para optimizar almacenamiento y consultas.  
+ **Reproducibilidad:** Se ejecuta fácilmente en Google Colab con Google Drive.  
+ **Trazabilidad:** Módulos de observabilidad para depuración y análisis.
+
+---
+
+## **Conclusión**
+
+El diseño modular del ETL permite procesar datos de manera eficiente, asegurando **calidad, limpieza y almacenamiento optimizado**. Su implementación en Google Colab y Google Drive lo hace accesible y fácil de ejecutar sin infraestructura adicional.
+
+
 
